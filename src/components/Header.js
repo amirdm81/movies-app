@@ -25,35 +25,28 @@ const Header = () => {
     return Math.floor(Math.random() * Math.floor(max));
   };
 
-  const setDeceleratingTimeout = (callback, factor, times) => {
-    var internalCallback = (function(tick, counter) {
-      return function() {
-        if (--tick >= 0) {
-          window.setTimeout(internalCallback, ++counter * factor);
-          callback();
-        }
-      };
-    })(times, 0);
-
-    window.setTimeout(internalCallback, factor);
+  const update = () => {
+    const id = getRandomInt(movies.length);
+    const value = getRandomInt(5);
+    dispatch(rate(id, value));
   };
 
-  const handleStartRandomRating = () => {
+  const loop = () => {
+    let rand = Math.round(Math.random() * (3000 - 500)) + 500;
     setHasInterval(
-      setDeceleratingTimeout(
-        () => {
-          const id = getRandomInt(movies.length);
-          const value = getRandomInt(5);
-          dispatch(rate(id, value));
-        },
-        100,
-        10
-      )
+      setTimeout(() => {
+        update();
+        loop();
+      }, rand)
     );
   };
 
+  const handleStartRandomRating = () => {
+    loop();
+  };
+
   const handleStopRandomRating = () => {
-    setHasInterval(clearInterval(hasInterval));
+    setHasInterval(clearTimeout(hasInterval));
   };
 
   return (
@@ -67,7 +60,7 @@ const Header = () => {
             RANDOM RATING ON
           </Button>
         ) : (
-          <Button onClick={handleStopRandomRating} color="inherit">
+          <Button color="inherit" onClick={handleStopRandomRating}>
             RANDOM RATEING OFF
           </Button>
         )}
